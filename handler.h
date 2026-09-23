@@ -1,7 +1,8 @@
 #include <stdbool.h>
+#include <stdio.h>
 #ifndef HANDLER_H
 #define HANDLER_H
 
-bool VerifyFile(char *file, int ext);
+FILE *verify_file(char *file, int ext);
 
 #endif

@@ -4,8 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 
-bool VerifyFile(char *file, int ext) {
-
+FILE *verify_file(char *file, int ext) {
   const char *extension;
   int size;
 
@@ -24,18 +23,17 @@ bool VerifyFile(char *file, int ext) {
     break;
   }
   if (strlen(file) < strlen(extension))
-    return false;
+    return NULL;
 
   char *file_extension = file + strlen(file) - size;
 
   if (strcmp(file_extension, extension) != 0) {
-    return false;
+    return NULL;
   }
 
   FILE *open_file = fopen(file, "r");
   if (open_file == NULL)
-    return false;
+    return NULL;
 
-  fclose(open_file);
-  return true;
+  return open_file;
 }
