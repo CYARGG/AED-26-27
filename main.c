@@ -1,35 +1,39 @@
 #include "handler.h"
 #include "position.h"
 #include "union.h"
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+#define number_files 3
 
 int main(int argc, char *argv[]) {
   if (argc != 4)
     return EXIT_FAILURE;
 
-  FILE **files = (FILE **)(malloc(
-      3 * sizeof(FILE *))); /* faz um array de pointers para fd's */
+  FILE *files[number_files]; /* array de pointer para os ficheiros */
 
-  for (int i = 0; i < 3; i++) {
-    files[i] =
-        verify_file(argv[i + 1], i); /*0 = .quests , 1 = .map , 2 = .position */
+  /*-----------verifica se os ficheiros estão corretos ----*/
+
+  for (int i = 0; i < number_files; i++) {
+    files[i] = verify_file(argv[i + 1], i);
 
     if (files[i] == NULL) {
       return EXIT_FAILURE;
     }
   }
 
+  /*------------------ ler .map---------------------------*/
+
   int ncity, nconnections;
-  if (fscanf(files[1], "%d %d", &ncity, &nconnections) != 2) {
+  if (fscanf(files[MAP], "%d %d", &ncity, &nconnections) != 2) {
     return EXIT_FAILURE;
   }
 
-  int *parent = (int *)(malloc((ncity + 1) * sizeof(int)));
-  int *size = (int *)(malloc((ncity + 1) * sizeof(int)));
+  int *parent = malloc((ncity + 1) * sizeof(int));
+  int *size = malloc((ncity + 1) * sizeof(int));
 
   if (parent == NULL || size == NULL) {
-    perror("Erro a alocar memória");
     return EXIT_FAILURE;
   }
 
@@ -40,35 +44,44 @@ int main(int argc, char *argv[]) {
 
   int city, connection;
   for (int j = 0; j < nconnections; j++) {
-    if (fscanf(files[1], "%d %d", &city, &connection) == 2) {
-      unite(parent, size, city, connection);
-    } else {
-      perror("Erro a ler ficheiro");
+    if (fscanf(files[MAP], "%d %d", &city, &connection) != 2) {
       return EXIT_FAILURE;
     }
+    unite(parent, size, city, connection);
   }
+  fclose(files[MAP]);
 
-  position *coordinates = (position *)(malloc((ncity + 1) * sizeof(position)));
+  /*--------- ler .position-------------------------------*/
+
+  position *coordinates = malloc((ncity + 1) * sizeof(position));
   if (coordinates == NULL) {
-    perror("erro a alocar memória");
     return EXIT_FAILURE;
   }
 
   int limx, limy;
-  if (fscanf(files[2], "%d %d", &limx, &limy) != 2)
+  if (fscanf(files[POSITION], "%d %d", &limx, &limy) != 2)
     return EXIT_FAILURE;
 
-  int x, y, id; /*TODO: falta a verificação obriagatória de não haver cidades
-                   repetidas e todas terem coordenadas*/
-  for (int i = 1; i <= ncity; i++) {
-    if (fscanf(files[2], "%d %d %d", &id, &x, &y) != 3 || x > limx || x < 1 ||
-        y > limy || y < 1) {
-      return EXIT_FAILURE;
-    } else {
-      coordinates[i].x = x;
-      coordinates[i].y = y;
-    }
+  bool *seen = calloc((ncity + 1), sizeof(bool));
+
+  if (seen == NULL) {
+    return EXIT_FAILURE;
   }
+  int id, x, y;
+  for (int i = 1; i <= ncity; i++) {
+    if (fscanf(files[POSITION], "%d %d %d", &id, &x, &y) != 3 ||
+        out_of_bound(id, x, y, ncity, limx, limy) || seen[id]) {
+      return EXIT_FAILURE;
+    }
+    coordinates[id].x = x;
+    coordinates[id].y = y;
+    seen[id] = true;
+  }
+
+  free(seen);
+  fclose(files[POSITION]);
+
+  /*--------------- ler .quests  e resolver------*/
 
   return EXIT_SUCCESS;
 }

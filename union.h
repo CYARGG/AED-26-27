@@ -1,6 +1,4 @@
-#include <stdbool.h>
-#include <stdio.h>
-#ifndef union_H
+#ifndef UNION_H
 #define UNION_H
 
 int find(int parent[], int city);

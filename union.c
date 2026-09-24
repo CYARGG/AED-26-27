@@ -1,11 +1,19 @@
 #include "union.h"
-#include <stdio.h>
 
 int find(int parent[], int city) {
+  int current_city = city;
+  int tmp, root;
+
   while (parent[city] != city) {
     city = parent[city];
   }
-  return city;
+  root = city;
+  while (current_city != root) {
+    tmp = parent[current_city];
+    parent[current_city] = root;
+    current_city = tmp;
+  }
+  return root;
 }
 
 void unite(int parent[], int size[], int city_1, int city_2) {
