@@ -1,5 +1,4 @@
 #include "handler.h"
-#include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
@@ -9,15 +8,15 @@ FILE *verify_file(char *file, int ext) {
   int size;
 
   switch (ext) {
-  case 0:
+  case QUESTS:
     extension = ".quests";
     size = strlen(extension);
     break;
-  case 1:
+  case MAP:
     extension = ".map";
     size = strlen(extension);
     break;
-  case 2:
+  case POSITION:
     extension = ".position";
     size = strlen(extension);
     break;
