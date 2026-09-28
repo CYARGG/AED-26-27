@@ -43,11 +43,13 @@ int main(int argc, char *argv[]) {
   }
 
   int city, connection;
+  int cluster_counter = ncity;
   for (int j = 0; j < nconnections; j++) {
     if (fscanf(files[MAP], "%d %d", &city, &connection) != 2) {
       return EXIT_FAILURE;
     }
-    unite(parent, size, city, connection);
+    cluster_counter = unite(parent, size, city, connection, cluster_counter);
+    /* # clusters para a task 1*/
   }
   fclose(files[MAP]);
 
