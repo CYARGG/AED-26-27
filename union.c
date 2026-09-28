@@ -16,11 +16,12 @@ int find(int parent[], int city) {
   return root;
 }
 
-void unite(int parent[], int size[], int city_1, int city_2) {
+int unite(int parent[], int size[], int city_1, int city_2,
+          int cluster_counter) {
   int root_1 = find(parent, city_1);
   int root_2 = find(parent, city_2);
   if (root_1 != root_2) {
-
+    cluster_counter -= 1;
     if (size[root_1] > size[root_2]) {
       parent[root_2] = root_1;
       size[root_1] += size[root_2];
@@ -30,5 +31,5 @@ void unite(int parent[], int size[], int city_1, int city_2) {
       size[root_2] += size[root_1];
     }
   }
-  return;
+  return cluster_counter;
 }
