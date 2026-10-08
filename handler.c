@@ -1,6 +1,7 @@
 #include "handler.h"
 #include <stddef.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 FILE *verify_file(char *file, int ext) {
@@ -35,4 +36,18 @@ FILE *verify_file(char *file, int ext) {
     return NULL;
 
   return open_file;
+}
+
+char *change_ext_to_results(char *file) {
+
+  size_t base_file = strlen(file) - strlen(".quests");
+  char *new_ext = ".results";
+
+  char *name = malloc(base_file + strlen(new_ext) + 1);
+  if (name == NULL)
+    return NULL;
+
+  memcpy(name, file, base_file);
+  strcpy(name + base_file, new_ext);
+  return name;
 }
