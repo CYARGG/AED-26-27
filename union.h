@@ -13,4 +13,6 @@ int get_cluster_count(const quick_union *map);
 
 int get_cluster_size(quick_union *map, int city);
 
+void free_quick_union(quick_union *map);
+
 #endif

@@ -10,4 +10,6 @@ typedef struct {
 
 bool out_of_bound(int id, int x, int y, int ncity, int limx, int limy);
 
+long squared_distance(position a, position b);
+
 #endif
