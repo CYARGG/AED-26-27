@@ -7,13 +7,19 @@
 #include <stdlib.h>
 
 #define number_files 3
-/*TODO: verificar a memória, se algum malloc falhar os outros ficam por
- * libertar*/
+
 int main(int argc, char *argv[]) {
   if (argc != 4)
     return EXIT_FAILURE;
 
-  FILE *files[number_files]; /* array de pointer para os ficheiros */
+  /* tudo começa a NULL para o cleanup só libertar/fechar o que foi aberto */
+  int exit_code = EXIT_FAILURE;
+  FILE *files[number_files] = {NULL}; /* array de pointer para os ficheiros */
+  FILE *results_file = NULL;
+  quick_union *map = NULL;
+  Cluster *list_of_clusters = NULL;
+  position *coordinates = NULL;
+  bool *seen = NULL;
 
   /*-----------verifica se os ficheiros estão corretos ----*/
 
@@ -21,56 +27,59 @@ int main(int argc, char *argv[]) {
     files[i] = verify_file(argv[i + 1], i);
 
     if (files[i] == NULL) {
-      return EXIT_FAILURE;
+      goto cleanup;
     }
   }
 
   /*------------------ ler .map---------------------------*/
 
   int ncity, nconnections;
-  if (fscanf(files[MAP], "%d %d", &ncity, &nconnections) != 2) {
-    return EXIT_FAILURE;
+  if (fscanf(files[MAP], "%d %d", &ncity, &nconnections) != 2 || ncity < 1 ||
+      nconnections < 0) {
+    goto cleanup;
   }
 
-  quick_union *map = initialize_quick_union(ncity);
+  map = initialize_quick_union(ncity);
 
   if (map == NULL)
-    return EXIT_FAILURE;
+    goto cleanup;
 
   int city, connection;
   for (int j = 0; j < nconnections; j++) {
-    if (fscanf(files[MAP], "%d %d", &city, &connection) != 2) {
-      return EXIT_FAILURE;
+    if (fscanf(files[MAP], "%d %d", &city, &connection) != 2 || city < 1 ||
+        city > ncity || connection < 1 || connection > ncity) {
+      goto cleanup;
     }
     unite(map, city, connection);
   }
   fclose(files[MAP]);
+  files[MAP] = NULL;
 
-  Cluster *list_of_clusters = distribute_by_cluster(map, ncity);
+  list_of_clusters = distribute_by_cluster(map, ncity);
 
   if (list_of_clusters == NULL)
-    return EXIT_FAILURE;
+    goto cleanup;
   /*--------- ler .position-------------------------------*/
 
-  position *coordinates = malloc((ncity + 1) * sizeof(position));
+  coordinates = malloc((ncity + 1) * sizeof(position));
   if (coordinates == NULL) {
-    return EXIT_FAILURE;
+    goto cleanup;
   }
 
   int limx, limy;
   if (fscanf(files[POSITION], "%d %d", &limx, &limy) != 2)
-    return EXIT_FAILURE;
+    goto cleanup;
 
-  bool *seen = calloc((ncity + 1), sizeof(bool));
+  seen = calloc((ncity + 1), sizeof(bool));
 
   if (seen == NULL) {
-    return EXIT_FAILURE;
+    goto cleanup;
   }
   int id, x, y;
   for (int i = 1; i <= ncity; i++) {
     if (fscanf(files[POSITION], "%d %d %d", &id, &x, &y) != 3 ||
         out_of_bound(id, x, y, ncity, limx, limy) || seen[id]) {
-      return EXIT_FAILURE;
+      goto cleanup;
     }
     coordinates[id].x = x;
     coordinates[id].y = y;
@@ -78,24 +87,26 @@ int main(int argc, char *argv[]) {
   }
 
   free(seen);
+  seen = NULL;
   fclose(files[POSITION]);
+  files[POSITION] = NULL;
 
   /*--------------- ler .quests  e resolver------*/
   int task, arg;
   char *results = change_ext_to_results(argv[1]);
   if (results == NULL)
-    return EXIT_FAILURE;
+    goto cleanup;
 
-  FILE *results_file = fopen(results, "w");
+  results_file = fopen(results, "w");
   free(results);
 
   if (results_file == NULL)
-    return EXIT_FAILURE;
+    goto cleanup;
 
   while (fscanf(files[QUESTS], " Task%d", &task) == 1) {
     if (task == 3 || task == 4) {
       if (fscanf(files[QUESTS], "%d", &arg) != 1)
-        return EXIT_FAILURE;
+        goto cleanup;
     }
     switch (task) {
     case 1:
@@ -115,11 +126,13 @@ int main(int argc, char *argv[]) {
       break;
 
     case 3:
-
+      fprintf(results_file, "Task3 %d %d\n\n", arg,
+              closest_city_outside_cluster(map, coordinates, ncity, arg));
       break;
 
     case 4:
-
+      fprintf(results_file, "Task4 %d %d\n\n", arg,
+              closest_city_to_cluster(map, coordinates, ncity, arg));
       break;
 
     case 5:
@@ -131,7 +144,20 @@ int main(int argc, char *argv[]) {
       break;
     }
   }
-  fclose(results_file);
-  fclose(files[QUESTS]);
-  return EXIT_SUCCESS;
+  exit_code = EXIT_SUCCESS;
+
+  /*--------- liberta a memória e fecha os ficheiros------*/
+cleanup:
+  if (results_file != NULL)
+    fclose(results_file);
+  for (int i = 0; i < number_files; i++) {
+    if (files[i] != NULL)
+      fclose(files[i]);
+  }
+  if (map != NULL)
+    free_clusters(list_of_clusters, get_cluster_count(map));
+  free_quick_union(map);
+  free(coordinates);
+  free(seen);
+  return exit_code;
 }

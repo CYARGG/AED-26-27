@@ -72,3 +72,11 @@ int get_cluster_count(const quick_union *map) { return map->cluster_counter; }
 int get_cluster_size(quick_union *map, int city) {
   return map->size[find(map, city)];
 }
+
+void free_quick_union(quick_union *map) {
+  if (map == NULL)
+    return;
+  free(map->parent);
+  free(map->size);
+  free(map);
+}
