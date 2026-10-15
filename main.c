@@ -116,10 +116,9 @@ int main(int argc, char *argv[]) {
     case 2:
       fprintf(results_file, "Task2 %d\n", get_cluster_count(map));
       for (int i = 1; i <= list_of_clusters->count; i++) {
-        const Cluster *cluster = &list_of_clusters->clusters[i];
         fprintf(results_file, "Cluster:");
-        for (int j = 0; j < cluster->size; j++) {
-          fprintf(results_file, " %d", cluster->members[j]);
+        for (int j = 0; j < list_of_clusters->clusters[i].size; j++) {
+          fprintf(results_file, " %d", list_of_clusters->clusters[i].members[j]);
         }
         fprintf(results_file, "\n");
       }
