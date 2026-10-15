@@ -17,7 +17,7 @@ int main(int argc, char *argv[]) {
   FILE *files[number_files] = {NULL}; /* array de pointer para os ficheiros */
   FILE *results_file = NULL;
   quick_union *map = NULL;
-  Cluster *list_of_clusters = NULL;
+  ClusterSet *list_of_clusters = NULL;
   position *coordinates = NULL;
   bool *seen = NULL;
 
@@ -115,10 +115,11 @@ int main(int argc, char *argv[]) {
 
     case 2:
       fprintf(results_file, "Task2 %d\n", get_cluster_count(map));
-      for (int i = 1; i <= get_cluster_count(map); i++) {
+      for (int i = 1; i <= list_of_clusters->count; i++) {
+        const Cluster *cluster = &list_of_clusters->clusters[i];
         fprintf(results_file, "Cluster:");
-        for (int j = 0; j < list_of_clusters[i].size; j++) {
-          fprintf(results_file, " %d", list_of_clusters[i].members[j]);
+        for (int j = 0; j < cluster->size; j++) {
+          fprintf(results_file, " %d", cluster->members[j]);
         }
         fprintf(results_file, "\n");
       }
@@ -127,12 +128,14 @@ int main(int argc, char *argv[]) {
 
     case 3:
       fprintf(results_file, "Task3 %d %d\n\n", arg,
-              closest_city_outside_cluster(map, coordinates, ncity, arg));
+              closest_city_outside_cluster(map, list_of_clusters,
+                                           coordinates, ncity, arg));
       break;
 
     case 4:
       fprintf(results_file, "Task4 %d %d\n\n", arg,
-              closest_city_to_cluster(map, coordinates, ncity, arg));
+              closest_city_to_cluster(map, list_of_clusters, coordinates,
+                                      ncity, arg));
       break;
 
     case 5:
@@ -154,8 +157,7 @@ cleanup:
     if (files[i] != NULL)
       fclose(files[i]);
   }
-  if (map != NULL)
-    free_clusters(list_of_clusters, get_cluster_count(map));
+  free_clusters(list_of_clusters);
   free_quick_union(map);
   free(coordinates);
   free(seen);
