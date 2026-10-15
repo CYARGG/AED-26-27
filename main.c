@@ -10,10 +10,10 @@
 
 int main(int argc, char *argv[]) {
   if (argc != 4)
-    return EXIT_FAILURE;
+    return 0;
 
   /* tudo começa a NULL para o cleanup só libertar/fechar o que foi aberto */
-  int exit_code = EXIT_FAILURE;
+  int exit_code = 0;
   FILE *files[number_files] = {NULL}; /* array de pointer para os ficheiros */
   FILE *results_file = NULL;
   quick_union *map = NULL;
