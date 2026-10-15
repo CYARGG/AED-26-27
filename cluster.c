@@ -89,7 +89,8 @@ void free_clusters(ClusterSet *set) {
 /*----------------- closest_city_outside_cluster ------------------
  * Task3: devolve a cidade mais próxima (distância euclidiana) da
  * cidade city que não pertence ao mesmo cluster. em caso de empate
- * fica a de menor índice
+ * fica a de menor índice (esclarecimento do enunciado: com várias
+ * cidades à mesma distância, a resposta certa é a de menor índice)
  * percorre os membros dos outros clusters, por isso as cidades não
  * são visitadas por ordem 1..ncity e o desempate tem de ser explícito
  * devolve -2 se a cidade não existir ou se só houver um cluster
@@ -125,7 +126,8 @@ int closest_city_outside_cluster(quick_union *map, const ClusterSet *set,
 /*------------------- closest_city_to_cluster ---------------------
  * Task4: devolve a cidade de fora do cluster de city que está mais
  * perto de alguma cidade desse cluster (o cluster como um todo, não
- * só a city). em caso de empate fica a de menor índice
+ * só a city). em caso de empate fica a de menor índice de todas as
+ * que são solução (esclarecimento do enunciado)
  * a resposta só depende do cluster, por isso é calculada uma vez e
  * guardada no closest_outside do cluster. são K*(C-K) comparações,
  * com K o tamanho do cluster de city
