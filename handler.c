@@ -21,6 +21,8 @@ FILE *verify_file(char *file, int ext) {
     extension = ".position";
     size = strlen(extension);
     break;
+  default:
+    return NULL;
   }
   if (strlen(file) < strlen(extension))
     return NULL;
