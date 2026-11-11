@@ -113,12 +113,18 @@ int main(int argc, char *argv[]) {
       fprintf(results_file, "Task1 %d\n\n", get_cluster_count(map));
       break;
 
-    case 2:
+    case 2: /*TODO: diferentes fontes para cluster count, manter ou mudar?*/
       fprintf(results_file, "Task2 %d\n", get_cluster_count(map));
-      for (int i = 1; i <= list_of_clusters->count; i++) {
+
+      for (int i = 1; i <= get_number_of_clusters(list_of_clusters); i++) {
+
         fprintf(results_file, "Cluster:");
-        for (int j = 0; j < list_of_clusters->clusters[i].size; j++) {
-          fprintf(results_file, " %d", list_of_clusters->clusters[i].members[j]);
+
+        for (int j = 0; j < get_cluster_specific_size(list_of_clusters, i);
+             j++) {
+
+          fprintf(results_file, " %d",
+                  get_cluster_member_by_id(list_of_clusters, i, j));
         }
         fprintf(results_file, "\n");
       }
@@ -127,14 +133,14 @@ int main(int argc, char *argv[]) {
 
     case 3:
       fprintf(results_file, "Task3 %d %d\n\n", arg,
-              closest_city_outside_cluster(map, list_of_clusters,
-                                           coordinates, ncity, arg));
+              closest_city_outside_cluster(map, list_of_clusters, coordinates,
+                                           ncity, arg));
       break;
 
     case 4:
       fprintf(results_file, "Task4 %d %d\n\n", arg,
-              closest_city_to_cluster(map, list_of_clusters, coordinates,
-                                      ncity, arg));
+              closest_city_to_cluster(map, list_of_clusters, coordinates, ncity,
+                                      arg));
       break;
 
     case 5:
