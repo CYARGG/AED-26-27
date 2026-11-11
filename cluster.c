@@ -2,6 +2,29 @@
 #include "union.h"
 #include <stdlib.h>
 
+struct Cluster {
+  int size;
+  int *members;
+  int closest_outside; /* resposta da Task4 em cache, 0 = ainda não calculada */
+};
+
+struct ClusterSet {
+  Cluster *clusters;    /* índices 1 a count, a posição 0 não é usada */
+  int *cluster_of_root; /* raiz do union-find -> índice em clusters */
+  int count;
+};
+
+int get_number_of_clusters(const ClusterSet *set) { return set->count; }
+/*TODO: falta a validação dos valores que recebem*/
+int get_cluster_specific_size(const ClusterSet *set, int cluster) {
+  return set->clusters[cluster].size;
+}
+
+int get_cluster_member_by_id(const ClusterSet *set, int cluster,
+                             int indice_member) {
+  return set->clusters[cluster].members[indice_member];
+}
+
 /*--------------------- distribute_by_cluster ---------------------
  * recebe o union-find, já com todas as uniões feitas, e o número de
  * cidades, e agrupa as cidades por cluster
@@ -106,10 +129,11 @@ int closest_city_outside_cluster(quick_union *map, const ClusterSet *set,
     if (j == id) // se estiver no mesmo cluster, dar skip
       continue;
     for (int i = 0; i < set->clusters[j].size; i++) {
-      long distance = squared_distance(coordinates[city],
-                                       coordinates[set->clusters[j].members[i]]);
+      long distance = squared_distance(
+          coordinates[city], coordinates[set->clusters[j].members[i]]);
       if (closest == -2 || distance < best_distance ||
-          (distance == best_distance && set->clusters[j].members[i] < closest)) {
+          (distance == best_distance &&
+           set->clusters[j].members[i] < closest)) {
         closest = set->clusters[j].members[i];
         best_distance = distance;
       }

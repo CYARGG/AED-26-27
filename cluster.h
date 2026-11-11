@@ -3,17 +3,10 @@
 
 #include "position.h"
 #include "union.h"
-typedef struct {
-  int size;
-  int *members;
-  int closest_outside; /* resposta da Task4 em cache, 0 = ainda não calculada */
-} Cluster;
 
-typedef struct {
-  Cluster *clusters;    /* índices 1 a count, a posição 0 não é usada */
-  int *cluster_of_root; /* raiz do union-find -> índice em clusters */
-  int count;
-} ClusterSet;
+typedef struct Cluster Cluster; /*TODO: pode sair daqui e ir para o .c*/
+
+typedef struct ClusterSet ClusterSet;
 
 ClusterSet *distribute_by_cluster(quick_union *map, int ncity);
 
@@ -25,4 +18,13 @@ int closest_city_outside_cluster(quick_union *map, const ClusterSet *set,
 int closest_city_to_cluster(quick_union *map, ClusterSet *set,
                             position *coordinates, int ncity, int city);
 
+int get_number_of_clusters(const ClusterSet *set);
+
+int get_cluster_specific_size(
+    const ClusterSet *set, int cluster); /*indices de 1 até count, salta o 0*/
+
+int get_cluster_member_by_id(
+    const ClusterSet *set,
+    int cluster, /* cluster vai de 1 a count e indice de 0 a size-1 */
+    int indice_member);
 #endif
