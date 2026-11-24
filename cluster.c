@@ -1,5 +1,6 @@
 #include "cluster.h"
-#include "union.h"
+#include "position.h"
+#include <limits.h>
 #include <stdlib.h>
 
 struct Cluster {
@@ -23,6 +24,36 @@ int get_cluster_specific_size(const ClusterSet *set, int cluster) {
 int get_cluster_member_by_id(const ClusterSet *set, int cluster,
                              int indice_member) {
   return set->clusters[cluster].members[indice_member];
+}
+
+/*---------------- shortest_edge_between_clusters -----------------
+ * devolve o quadrado da distância da ligação mais curta entre uma
+ * cidade do cluster_a e uma do cluster_b (índices de 1 a count,
+ * diferentes) e escreve essas duas cidades em city_a e city_b
+ * em caso de empate fica o par com a menor cidade do cluster_b e,
+ * depois, a menor do cluster_a, porque os membros estão por ordem
+ * crescente (é a regra que o verificador aceita)
+ *----------------------------------------------------------------- */
+
+long shortest_edge_between_clusters(const ClusterSet *set,
+                                    const position *coordinates, int cluster_a,
+                                    int cluster_b, int *city_a, int *city_b) {
+  long min_dist = LONG_MAX;
+
+  for (int i = 0; i < set->clusters[cluster_b].size; i++) {
+
+    for (int j = 0; j < set->clusters[cluster_a].size; j++) {
+      long dist_edge =
+          squared_distance(coordinates[set->clusters[cluster_a].members[j]],
+                           coordinates[set->clusters[cluster_b].members[i]]);
+      if (dist_edge < min_dist) {
+        min_dist = dist_edge;
+        *city_a = set->clusters[cluster_a].members[j];
+        *city_b = set->clusters[cluster_b].members[i];
+      }
+    }
+  }
+  return min_dist;
 }
 
 /*--------------------- distribute_by_cluster ---------------------

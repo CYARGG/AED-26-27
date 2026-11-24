@@ -4,7 +4,7 @@ SRC = $(wildcard *.c)
 OBJ = $(SRC:.c=.o)
 
 healkristin: $(OBJ)
-	$(CC) $(CFLAGS) -o $@ $^
+	$(CC) $(CFLAGS) -o $@ $^ -lm
 
 %.o: %.c $(wildcard *.h)
 	$(CC) $(CFLAGS) -c $< -o $@

@@ -1,5 +1,6 @@
 #include "cluster.h"
 #include "handler.h"
+#include "mst.h"
 #include "position.h"
 #include "union.h"
 #include <stdbool.h>
@@ -20,7 +21,7 @@ int main(int argc, char *argv[]) {
   ClusterSet *list_of_clusters = NULL;
   position *coordinates = NULL;
   bool *seen = NULL;
-
+  mst *tree = NULL;
   /*-----------verifica se os ficheiros estão corretos ----*/
 
   for (int i = 0; i < number_files; i++) {
@@ -144,7 +145,17 @@ int main(int argc, char *argv[]) {
       break;
 
     case 5:
-
+      if (tree == NULL) {
+        tree = mst_initialize(list_of_clusters, coordinates, ncity);
+        if (tree == NULL)
+          goto cleanup;
+      }
+      fprintf(results_file, "Task5 %.2f\n", mst_get_total(tree));
+      for (int i = 0; i < mst_get_count(tree); i++) {
+        fprintf(results_file, "%d %d %.2f\n", mst_get_start(tree, i),
+                mst_get_ending(tree, i), mst_get_distance(tree, i));
+      }
+      fprintf(results_file, "\n");
       break;
 
     case 6:
@@ -162,6 +173,7 @@ cleanup:
     if (files[i] != NULL)
       fclose(files[i]);
   }
+  mst_cleanup(tree);
   free_clusters(list_of_clusters);
   free_quick_union(map);
   free(coordinates);

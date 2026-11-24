@@ -12,6 +12,11 @@ ClusterSet *distribute_by_cluster(quick_union *map, int ncity);
 
 void free_clusters(ClusterSet *set);
 
+/*devolve a distância ao quadrado , fica com o menor se houver empate*/
+long shortest_edge_between_clusters(const ClusterSet *set,
+                                    const position *coordinates, int cluster_a,
+                                    int cluster_b, int *city_a, int *city_b);
+
 int closest_city_outside_cluster(quick_union *map, const ClusterSet *set,
                                  position *coordinates, int ncity, int city);
 
